@@ -95,8 +95,8 @@ These events are only emitted when ```mode``` is set to ```'manual'```.
 
 |Event|Type|Description|
 |-----|----|-----------|
-|dataLoaded|EventEmitter<any>|Emits when an existing record is requested for editing. The emitted value is the record's ID.|
-|recordRemoved|EventEmitter<any>|Emits when a record is requested for removal. The emitted value is the record's ID.|
+|editRecord|EventEmitter<any>|Emits the ID of the record when the edit button is clicked.|
+|removeRecord|EventEmitter<any>|Emits the ID of the record when the remove button is clicked.|
 
 ## ng-crud-form
 This components builds a form so users can create a new record or update and existing one. 
@@ -154,7 +154,7 @@ These events are only emitted when ```mode``` is set to ```'manual'```.
 
 |Event|Type|Description|
 |-----|----|-----------|
-|recordSaved|EventEmitter<any>|Emits when a new or existing record is saved. The emitted value is the form data.|
+|saveRecord|EventEmitter<any>|Emits when a new or existing record is saved. The emitted value is the form data.|
 
 ## ng-crud-aio
 A versatile, all-in-one Angular component for handling common CRUD (Create, Read, Update, Delete) operations. This component is designed to be highly configurable, working out of the box with your REST API or in a manual mode where you handle the API calls yourself.

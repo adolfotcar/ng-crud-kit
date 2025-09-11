@@ -48,8 +48,8 @@ export class NgCrudTableComponent implements AfterViewInit {
   @ViewChild(MatSort) sort = new MatSort();
 
   //to be emitted if in manual mode
-  readonly dataLoaded = output<any>();
-  readonly recordRemoved = output<any>();
+  readonly editRecord = output<any>();
+  readonly removeRecord = output<any>();
 
   //auto handles API calls internally and will require full API parameters to be passed
   //manual will emit events for the parent component to handle API calls and the table data should come from the parent
@@ -131,6 +131,11 @@ export class NgCrudTableComponent implements AfterViewInit {
   }
 
   public edit(id: string){
+    if (this.mode() === 'manual') {
+      this.editRecord.emit(id);
+      return;
+    }
+    
     this.router.navigate([`${buildUrl(this.editUrl(), id)}`]);
   }
 
@@ -139,7 +144,7 @@ export class NgCrudTableComponent implements AfterViewInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result === true) {       
         if (this.mode() === 'manual') {
-          this.recordRemoved.emit(id);
+          this.removeRecord.emit(id);
           this.removingId.set('');
           return;
         }

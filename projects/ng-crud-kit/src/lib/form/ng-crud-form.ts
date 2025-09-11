@@ -38,7 +38,7 @@ export class NgCrudFormComponent implements OnInit, OnChanges {
   private router = inject(Router);
   private route = inject(ActivatedRoute)
 
-  readonly recordSaved = output<any>();
+  readonly saveRecord = output<any>();
 
   //auto handles API calls internally and will require full API parameters to be passed
   //manual will emit events for the parent component to handle API calls and the table data should come from the parent
@@ -117,7 +117,7 @@ export class NgCrudFormComponent implements OnInit, OnChanges {
 
   public save() {
     if (this.mode() === 'manual') {
-      this.recordSaved.emit(this.form.getRawValue());
+      this.saveRecord.emit(this.form.getRawValue());
       return;
     }
 
