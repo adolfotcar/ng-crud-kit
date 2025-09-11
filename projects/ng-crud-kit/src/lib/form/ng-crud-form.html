@@ -1,0 +1,68 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ title() }}</mat-card-title>
+      @if (subtitle()!='') {
+        <mat-card-subtitle>{{ subtitle() }}</mat-card-subtitle>
+      }
+  </mat-card-header>
+  <mat-card-content>
+    <form id="form" [formGroup]="form" (ngSubmit)="save()">
+        @for (field of fields(); track field.name) {
+            @switch (field.type) {
+                @case ('input'){
+                    <div class="form-field">
+                        <mat-form-field class="full-width-input">
+                            <mat-label>{{ field.label }}</mat-label>
+                            <input matInput [placeholder]="field.placeholder!" [formControlName]="field.name!"
+                                [required]="field.required!">
+                            <mat-error>
+                                {{'please-provide-a-valid'}} {{ field.label }}
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+                }
+                @case ('number') {
+                    <div class="form-field">
+                        <mat-form-field class="full-width-input">
+                            <mat-label>{{ field.label }}</mat-label>
+                            <input matInput [placeholder]="field.placeholder!" [formControlName]="field.name!"
+                                [required]="field.required!" type="number" [min]="field.min!" [max]="field.max!">
+                            <mat-error>
+                                {{'please-provide-a-valid'}} {{ field.label }}
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+                }
+                @case ('text') {
+                    <div class="form-field">
+                        <mat-form-field class="full-width-input">
+                            <mat-label>{{ field.label }}</mat-label>
+                            <textarea matInput [placeholder]="field.placeholder!" [formControlName]="field.name!" [required]="field.required!" [rows]="field.rows!"></textarea>
+                            <mat-error>
+                                {{'please-provide-a-valid'}} {{ field.label }}
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+                }
+            }
+        }
+    </form>
+  </mat-card-content>
+  <mat-card-actions>
+    <a matButton="tonal" type="button" [routerLink]="returnBtnUrl()">
+      @if (returnBtnIcon()!='') {
+        <mat-icon fontIcon="{{ returnBtnIcon() }}"></mat-icon>
+      }
+      {{ returnBtnText() }}
+    </a>
+    @if (isSaving()){
+      <mat-spinner [diameter]="40"></mat-spinner>
+    }
+    @else {
+      <button matButton="filled" type="submit" form="form" [disabled]="form.invalid">
+        <mat-icon fontIcon="save"></mat-icon>
+        {{ 'Save' }}
+      </button>
+    }        
+  </mat-card-actions>
+</mat-card>
