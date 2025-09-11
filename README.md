@@ -165,7 +165,6 @@ It comes with two main modes:
 * ```manual```: The component emits events for data loading, saving, and deletion, allowing you to manage the API calls and data flow from the parent component.
 
 ### Usage
-##### ```auto``` mode
 This is the default and simplest way to use the component. It's ideal for a standard CRUD table interface where the component manages all the data. Set your parent component as:
 ```javascript
 import { Component } from '@angular/core';
@@ -210,6 +209,7 @@ The form is built inside a [Material Card](https://material.angular.dev/componen
 |--------|----|-------|-----------|
 |mode|'auto'\|'manual'|'auto'|Let's you decide wether you want the component to automatically handle the API calls or if you just want to hear the emitters and handle them yourself.|
 |tableData|any[]|[]|**Manual mode only**: the data to display in the table.|
+|formData|any[]|[]|**Manual mode only**: the data to be displayed in the form.|
 |title|string|'CRUD'|The main title of the page or form. The form is presented in a Material Card, and this is the title of the card|
 |subtitle|string|''|A subtitle to display below the main title. If no subtitle needed, leave blank.|
 |returnBtnUrl|string|'/'|The URL for the top-left return button.|
@@ -228,9 +228,9 @@ These events are only emitted when ```mode``` is set to ```'manual'```.
 
 |Event|Type|Description|
 |-----|----|-----------|
-|dataLoaded|EventEmitter<any>|Emits when an existing record is requested for editing. The emitted value is the record's ID.|
-|recordSaved|EventEmitter<any>|Emits when a new or existing record is saved. The emitted value is the form data.|
-|recordRemoved|EventEmitter<any>|Emits when a record is requested for removal. The emitted value is the record's ID.|
+|editRecord|EventEmitter<any>|Emits when an existing record is requested for editing. The emitted value is the record's ID.|
+|saveRecord|EventEmitter<any>|Emits when a new or existing record is saved. The emitted value is the form data.|
+|removeRecord|EventEmitter<any>|Emits when a record is requested for removal. The emitted value is the record's ID.|
 
 ## Sending Bearer Token
 In most cases you'd like to submit a Bearer token or some other authentication via your headers.  
