@@ -1,6 +1,9 @@
 # NgCrudKit
 CRUD Utility to be used with Angular Material.  
 
+## Requirements
+Angular 20, Angular Material 20 and RXJS 7.8 are required for version 0.X.X and 1.X.X.
+
 **Important COnsiderations:**
 Use with caution as it still in test;
 Inputs and Outputs names are normalizes and aren't expect to change, but breaking changes are still possible;
@@ -143,13 +146,13 @@ The form is built inside a [Material Card](https://material.angular.dev/componen
 |redirectOnSaveUrl|string|'items'|After saving a new record the URL which it'll be redirected to. For example if you are in ```/item``` creating a new record, after saving and receiving the ID 5 then it redirects to ```/item/5```.|
 |redirectOnSaveIdField|string|'id'|The field returned by the REST API that contains an identifier. This could be id, uuid, regno, etc|
 |fields|CrudFormItem[]|[]|An array defining the form fields and their properties. See CrudFormItem model below.|
+|formData|[]|null|**Manual mode only** values to be passed to form, for example when in editing mode.|
 
 ### Outputs
 These events are only emitted when ```mode``` is set to ```'manual'```.
 
 |Event|Type|Description|
 |-----|----|-----------|
-|dataLoaded|EventEmitter<any>|Emits when an existing record is requested for editing. The emitted value is the record's ID.|
 |recordSaved|EventEmitter<any>|Emits when a new or existing record is saved. The emitted value is the form data.|
 
 ## ng-crud-aio

@@ -1,4 +1,4 @@
-import { Component, input, output, inject, OnInit } from '@angular/core';
+import { Component, input, output, inject, OnInit, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -32,7 +32,7 @@ import { buildUrl } from '../utils/url.utils';
   templateUrl: './ng-crud-form.html',
   styleUrl: './ng-crud-form.scss'
 })
-export class NgCrudFormComponent implements OnInit {
+export class NgCrudFormComponent implements OnInit, OnChanges {
   private crudSvc = inject(CrudRequestService);
   private formBuilder = inject(FormBuilder);
   private snack = inject(MatSnackBar);
@@ -40,7 +40,6 @@ export class NgCrudFormComponent implements OnInit {
   private route = inject(ActivatedRoute)
 
   readonly recordSaved = output<any>();
-  readonly dataLoaded = output<any>();
 
   //auto handles API calls internally and will require full API parameters to be passed
   //manual will emit events for the parent component to handle API calls and the table data should come from the parent
@@ -70,6 +69,9 @@ export class NgCrudFormComponent implements OnInit {
   //form fields to be constructed
   readonly fields = input<NgCrudFormItem[]>([]);
 
+  //when in manual mode allows the user to pass values to the form
+  readonly formData = input<any>(null);
+
   //used to show spinner while loading
   public isLoading = this.crudSvc.isLoading;
   
@@ -81,13 +83,8 @@ export class NgCrudFormComponent implements OnInit {
 
   public form = new UntypedFormGroup({});
 
-  ngOnInit(): void {
-    if (this.mode() === 'manual') {
-      this.dataLoaded.emit(this.recordId);
-      return;
-    } 
-
-    if (this.recordId === '')
+  ngOnInit(): void {    
+    if ((this.recordId === '')||(this.mode() === 'manual'))
       return;
 
     this.crudSvc.getRecord(this.apiUrl(), this.apiEndpoint(), this.recordId)
@@ -113,9 +110,18 @@ export class NgCrudFormComponent implements OnInit {
       formGroup[item.name] = [val, validators];
     });
     this.form = this.formBuilder.group(formGroup);
+
+    if (this.mode() === 'manual') {
+      this.form.patchValue(this.formData());
+    }
   }
 
   public save() {
+    if (this.mode() === 'manual') {
+      this.recordSaved.emit(this.form.getRawValue());
+      return;
+    }
+
     const id = this.route.snapshot.paramMap.get('id') || '';
     if (id !== '') {
       this.update();
@@ -125,13 +131,7 @@ export class NgCrudFormComponent implements OnInit {
     
   }
 
-  private add() {    
-    if (this.mode() === 'manual'){
-      this.recordSaved.emit(this.form.getRawValue());
-      this.isSaving.set(false);
-      return
-    }
-    
+  private add() {        
     this.crudSvc.addRecord(this.apiUrl(), this.apiEndpoint(), this.form.getRawValue())
     .subscribe({
       next: res => {
@@ -149,12 +149,6 @@ export class NgCrudFormComponent implements OnInit {
   }
 
   private update() {
-    if (this.mode() === 'manual') {
-      this.recordSaved.emit(this.form.getRawValue());
-      this.isSaving.set(false);
-      return;
-    }
-
     this.crudSvc.updateRecord(this.apiUrl(), this.apiEndpoint(), this.recordId, this.form.getRawValue())
     .subscribe({
       next: res => {
