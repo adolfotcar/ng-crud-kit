@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, input, OnInit, output, ViewChild, viewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, input, output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 
@@ -17,7 +17,6 @@ import { NgCrudTableColumns } from '../models/crud-table-columns.model';
 import { CrudRequestService } from '../services/ng-crud-request.service';
 import { DeleteConfirmationDialog } from '../dialogs/delete-confirmation-dialog';
 import { buildUrl } from '../utils/url.utils';
-import { catchError, map, merge, of, startWith, switchMap } from 'rxjs';
 
 @Component({
   selector: 'ng-crud-table',

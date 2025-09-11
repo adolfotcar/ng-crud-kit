@@ -4,9 +4,10 @@ CRUD Utility to be used with Angular Material.
 ## Requirements
 Angular 20, Angular Material 20 and RXJS 7.8 are required for version 0.X.X and 1.X.X.
 
-**Important COnsiderations:**
+**Important Considerations:**
 Use with caution as it still in test;
-Inputs and Outputs names are normalizes and aren't expect to change, but breaking changes are still possible;
+Inputs names are normalized and aren't expected to change;
+Outputs might suffer changes;
 Manual mode isn't completed and test is pending;
 
 ## Installation

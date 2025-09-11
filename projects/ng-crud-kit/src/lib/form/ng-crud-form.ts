@@ -13,7 +13,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { NgCrudFormItem } from '../models/crud-form-item.model';
 import { CrudRequestService } from '../services/ng-crud-request.service';
-import { buildUrl } from '../utils/url.utils';
 
 @Component({
   selector: 'ng-crud-form',
@@ -21,13 +20,13 @@ import { buildUrl } from '../utils/url.utils';
   imports: [
     ReactiveFormsModule,
     CommonModule,
+    RouterLink,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
     MatProgressSpinnerModule,
-    MatIconModule,
-    RouterLink
+    MatIconModule,    
 ],
   templateUrl: './ng-crud-form.html',
   styleUrl: './ng-crud-form.scss'
