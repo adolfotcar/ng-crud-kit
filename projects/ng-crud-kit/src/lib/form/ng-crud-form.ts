@@ -83,16 +83,20 @@ export class NgCrudFormComponent implements OnInit, OnChanges {
   public form = new UntypedFormGroup({});
 
   ngOnInit(): void {    
-    if ((this.recordId === '')||(this.mode() === 'manual'))
+    if ((this.recordId === '')||(this.mode() === 'manual')) {
+      this.isLoading.set(false);
       return;
+    }      
 
     this.crudSvc.getRecord(this.apiUrl(), this.apiEndpoint(), this.recordId)
     .subscribe({
       next: res => {
         this.form.patchValue(res.data);
+        this.isLoading.set(false);
       },
       error: err => {
         this.snack.open('Error loading data!', 'Ok', { verticalPosition: 'top', duration: 3000 });
+        this.isLoading.set(false);
         console.error('NgCrudAioComponent: Error loading data from API', err);
       }
     });

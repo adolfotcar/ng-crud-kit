@@ -82,10 +82,6 @@ export class NgCrudAioComponent implements OnInit, OnChanges {
   //details of the column, like title, content, etc
   readonly columns = input<NgCrudTableColumns[]>([]);  
   
-  //indicates if there is a table or not (if not it's single record editing eg: profile, settings, etc)
-  readonly hasTable = input(true);
-  
-
   //indicates the name of the field to be treated as ID
   //it can be uuid, id, regno, etc
   //expected to be present in the table
@@ -133,6 +129,7 @@ export class NgCrudAioComponent implements OnInit, OnChanges {
 
   //if no data is passed, makes a http call
   //otherwise patches the table/form with data provided
+  //it's called oninit and after saving
   private loadData(data?: any){
     if (this.mode() === 'manual') {
       this.isLoading.set(false);
@@ -141,22 +138,14 @@ export class NgCrudAioComponent implements OnInit, OnChanges {
     
     this.resetForm();
     if (data) {
-      if (this.hasTable()) {
-        this.tableSrc.set(data);
-      } else {
-        this.form.patchValue(data);
-      }
+      this.tableSrc.set(data);
       return;
     }
       
     this.crudSvc.getTable(this.apiUrl(), this.apiEndpoint())
     .subscribe({
       next: res => {
-        if (this.hasTable()) {
-          this.tableSrc.set(res.data);
-        } else {
-          this.form.patchValue(res.data);
-        }
+        this.tableSrc.set(res.data);
         this.isLoading.set(false);
       },
       error: err => {

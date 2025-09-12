@@ -5,10 +5,7 @@ CRUD Utility to be used with Angular Material.
 Angular 20, Angular Material 20 and RXJS 7.8 are required for version 0.X.X and 1.X.X.
 
 **Important Considerations:**
-Use with caution as it still in test;
-Inputs names are normalized and aren't expected to change;
-Outputs might suffer changes;
-Manual mode isn't completed and test is pending;
+Despite being a release it still in early days, use with caution!
 
 ## Installation
 First, ensure you have Angular Material set up in your project:
@@ -221,7 +218,6 @@ The form is built inside a [Material Card](https://material.angular.dev/componen
 |displayedColumns|string[]|[]|An array of column names that will be displayed in the table.|
 |columns|CrudTableColumns[]|[]|An array defining the table column headers and their behavior. See CrudTableColumns models below.|
 |idField|string|'id'|**Auto mode only**: the name of the ID field present in the table. Used, for example, when removing a record which field specifies which record to be removed|
-|hasTable|boolean|true|Indicates if the component should display a table or just a single record form. Set it to false if you are editing single record items, such as user profile or settings|
 
 #### Outputs
 These events are only emitted when ```mode``` is set to ```'manual'```.
