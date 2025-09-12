@@ -7,6 +7,9 @@ Angular 20, Angular Material 20 and RXJS 7.8 are required for version 0.X.X and 
 **Important Considerations:**
 Despite being a release it still in early days, use with caution!
 
+## Live Demo
+Use this [StackBlitz Demo](https://stackblitz.com/~/github.com/adolfotcar/crud-kit-demo) to try it out.
+
 ## Installation
 First, ensure you have Angular Material set up in your project:
 ```bash
