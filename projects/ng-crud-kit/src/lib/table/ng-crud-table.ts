@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, input, output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, effect, inject, input, output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 
@@ -98,31 +98,33 @@ export class NgCrudTableComponent implements AfterViewInit {
   public isLoading = this.crudSvc.isLoading;
 
   constructor(){
-    
+    // Use an effect to react to changes in the tableData signal
+    effect(() => {
+        if (this.mode() === 'manual') {
+            this.dataSource.data = this.tableData();
+            this.isLoading.set(false);
+        }
+    });
   }
 
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
 
-    if (this.mode() === 'manual') {
-      this.dataSource.data = this.tableData();
-      this.isLoading.set(false);
-      return;
-    }    
-    
-    this.crudSvc.getTable(this.apiUrl(), this.apiEndpoint())
-    .subscribe({
-      next: res => {
-        this.dataSource.data = res.data;
-        this.isLoading.set(false);
-      },
-      error: err => {
-        this.snack.open('Error loading data!', 'Ok', { verticalPosition: 'top', duration: 3000 });
-        console.error('NgCrudAioComponent: Error loading data from API', err);
-        this.isLoading.set(false);
-      }
-    });
+    if (this.mode() === 'auto') {    
+      this.crudSvc.getTable(this.apiUrl(), this.apiEndpoint())
+      .subscribe({
+        next: res => {
+          this.dataSource.data = res.data;
+          this.isLoading.set(false);
+        },
+        error: err => {
+          this.snack.open('Error loading data!', 'Ok', { verticalPosition: 'top', duration: 3000 });
+          console.error('NgCrudAioComponent: Error loading data from API', err);
+          this.isLoading.set(false);
+        }
+      });
+    }
     
   }
 
