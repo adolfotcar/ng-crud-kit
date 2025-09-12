@@ -1,10 +1,28 @@
+/*
+auto mode
+  API failure cases
+    should show snackbar on initial data load API failure
+    should show snackbar on remove record API failure
+  API success cases
+    should remove a record after confirmation and show a snackbar
+    should load table data on init
+    should edit a record and redirect to editing page
+  rendering - all API cases
+    should create
+manual mode
+  should create
+  should emit editRecord when editing a record
+  should load table data on init
+  should emit removeRecord when removing a record
+*/
+
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { HttpTestingController } from '@angular/common/http/testing';
+import { provideRouter, Router } from '@angular/router';
 
 import { NgCrudTableComponent } from './ng-crud-table';
-import { provideRouter, Router } from '@angular/router';
 
 
 describe('NgCrudTableComponent', () => {
@@ -26,16 +44,15 @@ describe('NgCrudTableComponent', () => {
     let router: Router;
 
     beforeEach(() => {
-      fixture = TestBed.createComponent(NgCrudTableComponent);
-      component = fixture.componentInstance;
       httpTestingController = TestBed.inject(HttpTestingController);
-      router = TestBed.inject(Router);
+      fixture = TestBed.createComponent(NgCrudTableComponent);
 
       fixture.componentRef.setInput('displayedColumns', []);
       fixture.componentRef.setInput('editUrl', 'items');
 
+      component = fixture.componentInstance;      
+      router = TestBed.inject(Router);
       fixture.detectChanges();
-
     });
 
     describe('rendering - all API cases', () => {
@@ -47,16 +64,16 @@ describe('NgCrudTableComponent', () => {
     describe('API success cases', () => {
       it('should load table data on init', () => {
         const mockResponse = { data: [{ id: 1, name: 'Test Item' }] };
-
         const req = httpTestingController.expectOne(`${apiUrl}${endpoint}`);
-        expect(req.request.method).toBe('GET');
+        
         req.flush(mockResponse);
 
+        expect(req.request.method).toBe('GET');
         expect(component.dataSource.data).toEqual(mockResponse.data);
         expect(component.isLoading()).toBeFalse();
       });
 
-      it('should edit a record and redirect to edit page', () => {
+      it('should edit a record and redirect to editing page', () => {
         const recordId = '1';
         const navigateSpy = spyOn(router, 'navigate');
 
@@ -77,26 +94,26 @@ describe('NgCrudTableComponent', () => {
 
         component.remove('1');
 
-        const req = httpTestingController.expectOne(`${apiUrl}${endpoint}/1`);
-        expect(req.request.method).toBe('DELETE');
+        const req = httpTestingController.expectOne(`${apiUrl}${endpoint}/1`);        
         req.flush(mockResponse);
 
-        expect(component['snack'].open).toHaveBeenCalled();
+        expect(req.request.method).toBe('DELETE');        
         expect(component.dataSource.data).toEqual(mockResponse.data);
         expect(component.removingId()).toBe('');
+        expect(component['snack'].open).toHaveBeenCalledWith('Record removed!', 'Ok', { verticalPosition: 'top', duration: 3000 });
       });
     });
 
     describe('API failure cases', () => {   
       it('should show snackbar on initial data load API failure', () => {
+        const req = httpTestingController.expectOne(`${apiUrl}${endpoint}`);
         spyOn(component['snack'], 'open');
 
-        const req = httpTestingController.expectOne(`${apiUrl}${endpoint}`);
-        expect(req.request.method).toBe('GET');
         req.flush('Server Error', { status: 500, statusText: 'Server Error' });
-        
-        expect(component['snack'].open).toHaveBeenCalledWith('Error loading data!', 'Ok', { verticalPosition: 'top', duration: 3000 });
+
+        expect(req.request.method).toBe('GET');        
         expect(component.isLoading()).toBeFalse();
+        expect(component['snack'].open).toHaveBeenCalledWith('Error loading data!', 'Ok', { verticalPosition: 'top', duration: 3000 });
       });
 
       it('should show snackbar on remove record API failure', () => {
@@ -110,26 +127,26 @@ describe('NgCrudTableComponent', () => {
         component.remove('1');
 
         const req = httpTestingController.expectOne(`${apiUrl}${endpoint}/1`);
-        expect(req.request.method).toBe('DELETE');
         req.flush('Server Error', { status: 500, statusText: 'Server Error' });
 
-        expect(component['snack'].open).toHaveBeenCalledWith('Error removing record!', 'Ok', { verticalPosition: 'top', duration: 3000 });
+        expect(req.request.method).toBe('DELETE');
         expect(component.removingId()).toBe('');
+        expect(component['snack'].open).toHaveBeenCalledWith('Error removing record!', 'Ok', { verticalPosition: 'top', duration: 3000 });        
       });
     });
   });
 
   describe('manual mode', () => {
       beforeEach(() => {
-        // Create a fresh component instance for manual mode tests
-        fixture = TestBed.createComponent(NgCrudTableComponent);
-        component = fixture.componentInstance;
         httpTestingController = TestBed.inject(HttpTestingController);
-  
+
+        fixture = TestBed.createComponent(NgCrudTableComponent);      
         fixture.componentRef.setInput('columns', [{ db_name: 'character', title: 'Character' }]);
         fixture.componentRef.setInput('displayedColumns', ['character']);      
         fixture.componentRef.setInput('mode', 'manual');
         fixture.componentRef.setInput('tableData', [{ id: 1, name: 'Test Item' }]);
+
+        component = fixture.componentInstance;
         fixture.detectChanges();
       });
   
@@ -143,17 +160,19 @@ describe('NgCrudTableComponent', () => {
       });
   
       it('should emit editRecord when editing a record', () => {
+        const editId = '123';
         spyOn(component.editRecord, 'emit');
   
-        component.edit('123');
+        component.edit(editId);
   
-        expect(component.editRecord.emit).toHaveBeenCalledWith('123');
+        expect(component.editRecord.emit).toHaveBeenCalledWith(editId);
       });
   
       it('should emit removeRecord when removing a record', () => {
+        const removeId = '99';
         spyOn(component.removeRecord, 'emit');
   
-        component.remove('99');
+        component.remove(removeId);
   
         spyOn(component['deleteDialog'], 'open').and.returnValue({
           afterClosed: () => ({
@@ -161,9 +180,9 @@ describe('NgCrudTableComponent', () => {
           })
         } as any);
   
-        component.remove('99');
+        component.remove(removeId);
   
-        expect(component.removeRecord.emit).toHaveBeenCalledWith('99');
+        expect(component.removeRecord.emit).toHaveBeenCalledWith(removeId);
       });
     });
 });
