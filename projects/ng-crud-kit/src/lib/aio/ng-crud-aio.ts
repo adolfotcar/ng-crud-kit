@@ -1,3 +1,9 @@
+/*
+Logically this should consume NgCrudForm and NgCrudTable
+But it would involve adding some complications to all three components that it's probably easiear to have this as whole separated component...
+Feels like a lot of the code could be reused but not without adding more complications and unecessary variables...
+Hopefully in future versions of Angular it'll be easier to integrate...
+*/
 import { Component, inject, input, OnChanges, OnInit, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, UntypedFormGroup, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
