@@ -27,6 +27,9 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { HttpTestingController } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
+import { MatInput } from '@angular/material/input';
+import { MatSelect } from '@angular/material/select';
+import { MatCheckbox } from '@angular/material/checkbox';
 
 import { NgCrudAioComponent } from './ng-crud-aio';
 
@@ -238,13 +241,15 @@ describe('NgCrudAioComponent', () => {
       httpTestingController = TestBed.inject(HttpTestingController);
 
       fixture = TestBed.createComponent(NgCrudAioComponent);
-      fixture.componentRef.setInput('fields', [
-        { name: 'name', type: 'input', label: 'Character', placeholder: 'Enter character name', required: true }
-      ]);
       fixture.componentRef.setInput('columns', [{ db_name: 'character', title: 'Character' }]);
       fixture.componentRef.setInput('displayedColumns', ['character']);      
       fixture.componentRef.setInput('mode', 'manual');
       fixture.componentRef.setInput('tableData', mockContent);
+      fixture.componentRef.setInput('fields', [
+        { name: 'name', type: 'input', label: 'Character', placeholder: 'Enter character name', required: true },
+        { name: 'happy', type: 'select', label: 'Happy', required: false, options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }] },
+        { name: 'terms', type: 'checkbox', label: 'Terms and Conditions', required: false }
+      ]);      
 
       component = fixture.componentInstance;
       fixture.detectChanges();
@@ -271,10 +276,10 @@ describe('NgCrudAioComponent', () => {
     it('should emit saveRecord when saving a new record', () => {
       spyOn(component.saveRecord, 'emit');
 
-      component.form.patchValue({ name: 'Manual Add' });
+      component.form.patchValue({ name: 'Manual Add', happy: 'yes', terms: true });
       component.save();
 
-      expect(component.saveRecord.emit).toHaveBeenCalledWith({ name: 'Manual Add' });
+      expect(component.saveRecord.emit).toHaveBeenCalledWith({ name: 'Manual Add', happy: 'yes', terms: true });
     });
 
     it('should emit saveRecord when updating a record', () => {
@@ -282,10 +287,10 @@ describe('NgCrudAioComponent', () => {
       spyOn(component.saveRecord, 'emit');
 
       component.savingId.set(updateId);
-      component.form.patchValue({ name: 'Manual Update' });
+      component.form.patchValue({ name: 'Manual Update', happy: 'yes', terms: true });
       component.save();
 
-      expect(component.saveRecord.emit).toHaveBeenCalledWith({ name: 'Manual Update' });
+      expect(component.saveRecord.emit).toHaveBeenCalledWith({ name: 'Manual Update', happy: 'yes', terms: true });
     });
 
     it('should emit removeRecord when removing a record', () => {

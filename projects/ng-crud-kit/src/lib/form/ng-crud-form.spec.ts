@@ -26,6 +26,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { HttpTestingController } from '@angular/common/http/testing';
 import { provideRouter, ActivatedRoute, convertToParamMap, Router } from '@angular/router';
+import { By } from '@angular/platform-browser';
+import { MatInput } from '@angular/material/input';
+import { MatSelect } from '@angular/material/select';
+import { MatCheckbox } from '@angular/material/checkbox';
 
 import { NgCrudFormComponent } from './ng-crud-form';
 
@@ -67,7 +71,9 @@ describe('NgCrudFormComponent', () => {
       
       fixture = TestBed.createComponent(NgCrudFormComponent);
       fixture.componentRef.setInput('fields', [
-        { name: 'name', type: 'input', label: 'Character', placeholder: 'Enter character name', required: true }
+        { name: 'name', type: 'input', label: 'Character', placeholder: 'Enter character name', required: true },
+        { name: 'happy', type: 'select', label: 'Happy', required: false, options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }] },
+        { name: 'terms', type: 'checkbox', label: 'Terms and Conditions', required: false }
       ]);
       
       component = fixture.componentInstance;
@@ -87,7 +93,13 @@ describe('NgCrudFormComponent', () => {
       });
 
       it('should create', () => {
+        const nameInput = fixture.debugElement.query(By.directive(MatInput));
+        const happySelect = fixture.debugElement.query(By.directive(MatSelect));
+        const termsCheck = fixture.debugElement.query(By.directive(MatCheckbox));
         expect(component).toBeTruthy();
+        expect(nameInput).toBeTruthy();        
+        expect(happySelect).toBeTruthy();
+        expect(termsCheck).toBeTruthy();
       });
 
       it('should load form data on init', () => { 
@@ -96,10 +108,10 @@ describe('NgCrudFormComponent', () => {
       });
 
       it('should update a record and show a snackbar', () => {
-        const mockResponse = { data: { id: 1, name: 'Updated Item' } };
+        const mockResponse = { data: { id: 1, name: 'Updated Item', happy: 'yes', terms: true } };
         spyOn(component['snack'], 'open');
 
-        component.form.setValue({ name: 'Updated Item' });
+        component.form.setValue({ name: 'Updated Item', happy: 'no', terms: false });
         component.save(); 
 
         const req = httpTestingController.expectOne(`${apiUrl}${endpoint}/${mockRouteId}`);
@@ -137,7 +149,7 @@ describe('NgCrudFormComponent', () => {
         initialGetReq.flush(mockData);
         spyOn(component['snack'], 'open');
 
-        component.form.setValue({ name: 'Updated Item' });
+        component.form.setValue({ name: 'Updated Item', happy: 'no', terms: true });
         component.save(); 
 
         const req = httpTestingController.expectOne(`${apiUrl}${endpoint}/${mockData.data.id}`);        

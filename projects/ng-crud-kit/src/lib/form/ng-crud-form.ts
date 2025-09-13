@@ -10,6 +10,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox'
+
 
 import { NgCrudFormItem } from '../models/crud-form-item.model';
 import { CrudRequestService } from '../services/ng-crud-request.service';
@@ -27,6 +30,8 @@ import { CrudRequestService } from '../services/ng-crud-request.service';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatIconModule,    
+    MatSelectModule,
+    MatCheckboxModule
 ],
   templateUrl: './ng-crud-form.html',
   styleUrl: './ng-crud-form.scss'

@@ -11,6 +11,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input'
 import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { NgCrudFormItem } from '../models/crud-form-item.model';
 import { NgCrudTableColumns } from '../models/crud-table-columns.model';
@@ -31,7 +33,9 @@ import { DeleteConfirmationDialog } from '../dialogs/delete-confirmation-dialog'
     MatProgressSpinnerModule,
     MatTableModule,
     MatInputModule,
-    MatButtonModule
+    MatButtonModule,
+    MatSelectModule,
+    MatCheckboxModule
   ],
   templateUrl: './ng-crud-aio.html',
   styleUrl: './ng-crud-aio.scss'

@@ -278,11 +278,11 @@ This model defines the properties of each input field in your form. They will be
 |Property|Type|Required|Description|
 |--------|----|--------|-----------|
 |name|string|Yes|The name of the form control.|
-|type|string|Yes|The input type (e.g., 'text', 'email').|
-|label|string|Yes|The display label for the input field.|
+|type|string|Yes|The input type: 'input'\|'text'\|'number'\|'checkbox'\|'select'.|
+|label|string|Yes|The display label for the field.|
 |defaultValue|any|No|A default value for the field.|
 |required|boolean|No|Sets a Validators.required on the field.|
-|options|any[]|No|Options for select/dropdown fields.|
+|options|any[]|No|Options for select/dropdown fields. Must be an array of objects with ```value``` and ```label```|
 
 ```CrudTableColumns```
 This model defines the properties for each column in your table.

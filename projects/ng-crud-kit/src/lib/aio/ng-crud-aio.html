@@ -54,6 +54,25 @@
                                 </mat-form-field>
                             </div>
                         }
+                        @case ('select') {
+                            <div class="form-field">
+                                <mat-form-field class="full-width-input">
+                                    <mat-label>{{ field.label }}</mat-label>
+                                    <mat-select [formControlName]="field.name!" [required]="field.required!" [multiple]="field.multiple">
+                                        @for (option of field.options!; track option.value) {
+                                            <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                                        }
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        }
+                        @case ('checkbox') {
+                            <div class="form-field">
+                                <mat-checkbox [formControlName]="field.name!" [required]="field.required!">
+                                    {{ field.label }}
+                                </mat-checkbox>
+                            </div>
+                        }
                     }
                 }
             </form>
