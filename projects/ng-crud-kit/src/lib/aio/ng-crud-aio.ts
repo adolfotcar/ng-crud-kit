@@ -1,29 +1,17 @@
-/*
-Logically this should consume NgCrudForm and NgCrudTable
-But it would involve adding some complications to all three components that it's probably easiear to have this as whole separated component...
-Feels like a lot of the code could be reused but not without adding more complications and unecessary variables...
-Hopefully in future versions of Angular it'll be easier to integrate...
-*/
-import { Component, inject, input, OnChanges, OnInit, output } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, UntypedFormGroup, Validators } from '@angular/forms';
+import { Component, effect, inject, input, OnInit, output } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTableModule } from '@angular/material/table';
-import { MatInputModule } from '@angular/material/input'
 import { MatButtonModule } from '@angular/material/button';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { NgCrudFormItem } from '../models/crud-form-item.model';
 import { NgCrudTableColumns } from '../models/crud-table-columns.model';
 import { CrudRequestService } from '../services/ng-crud-request.service';
-import { DeleteConfirmationDialog } from '../dialogs/delete-confirmation-dialog';
+import { NgCrudFormComponent } from '../form/ng-crud-form';
+import { NgCrudTableComponent } from '../table/ng-crud-table';
 
 @Component({
   selector: 'ng-crud-aio',
@@ -32,30 +20,25 @@ import { DeleteConfirmationDialog } from '../dialogs/delete-confirmation-dialog'
     ReactiveFormsModule,
     RouterLink,
 
-    MatDialogModule,
     MatIconModule,
-    MatCardModule,
-    MatFormFieldModule,
     MatProgressSpinnerModule,
-    MatTableModule,
-    MatInputModule,
     MatButtonModule,
-    MatSelectModule,
-    MatCheckboxModule
+
+    NgCrudFormComponent,
+    NgCrudTableComponent
   ],
   templateUrl: './ng-crud-aio.html',
   styleUrl: './ng-crud-aio.scss'
 })
-export class NgCrudAioComponent implements OnInit, OnChanges {
+export class NgCrudAioComponent implements OnInit {
   private crudSvc = inject(CrudRequestService);
-  private deleteDialog = inject(MatDialog); 
-  private formBuilder = inject(FormBuilder);
   private snack = inject(MatSnackBar);
 
   //to be emitted if in manual mode
   readonly editRecord = output<any>();
   readonly saveRecord = output<any>();
   readonly removeRecord = output<any>();
+  readonly cancelEditing = output<any>();
 
   //auto handles API calls internally and will require full API parameters to be passed
   //manual will emit events for the parent component to handle API calls and the table data should come from the parent
@@ -78,10 +61,10 @@ export class NgCrudAioComponent implements OnInit, OnChanges {
   readonly returnBtnIcon = input('');
 
   //base url to the backend
-  readonly apiUrl = input('http://localhost:4200/api/');
+  readonly apiUrl = input('');
   
   //api endpoint
-  readonly apiEndpoint = input('items');
+  readonly apiEndpoint = input('');
   
   //form fields to be constructed
   readonly fields = input<NgCrudFormItem[]>([]);
@@ -91,11 +74,6 @@ export class NgCrudAioComponent implements OnInit, OnChanges {
   
   //details of the column, like title, content, etc
   readonly columns = input<NgCrudTableColumns[]>([]);  
-  
-  //indicates the name of the field to be treated as ID
-  //it can be uuid, id, regno, etc
-  //expected to be present in the table
-  readonly idField = input('id')
 
   //used to show spinner while loading
   public isLoading = this.crudSvc.isLoading;
@@ -112,50 +90,47 @@ export class NgCrudAioComponent implements OnInit, OnChanges {
   //if 0 then nothing is being removed 
   //also used to hide the remove button on the record being removed
   public removingId = this.crudSvc.removingId;
-  
-  public tableSrc = this.crudSvc.tableData;
 
-  public form = new UntypedFormGroup({});
+  //these will be used as intermediators between the consumer and child attributes
+  public childFormData: any = null;
+  public childTableData: any = {};
+
+  constructor(){
+    effect(() => {
+      if (this.mode() === 'manual') {
+        this.childFormData = this.formData();
+        this.childTableData = this.tableData();
+        this.isLoading.set(false);
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.loadData();
   }
 
-  ngOnChanges(): void {
-    // Re-build form when inputs change
-    this.form = new UntypedFormGroup({});
-    let formGroup: any = {};
-    this.fields().forEach((item: any) => {
-      let val = item.defaultValue ? item.defaultValue : '';
-      let validators = item.required ? [Validators.required] : [];
-      formGroup[item.name] = [val, validators];
-    });
-    this.form = this.formBuilder.group(formGroup);
-
-    if (this.mode() === 'manual') {
-      this.form.patchValue(this.formData());
-    }
-  }
-
-  //if no data is passed, makes a http call
+  //if data is passed then sets it to the table (to avoid making extra http call)
+  //else loads it from the API
   //otherwise patches the table/form with data provided
   //it's called oninit and after saving
   private loadData(data?: any){
     if (this.mode() === 'manual') {
+      this.childTableData = this.tableData();
       this.isLoading.set(false);
       return;
     }      
     
     this.resetForm();
-    if (data) {
-      this.tableSrc.set(data);
+
+    if (data) {      
+      this.childTableData = data;
       return;
     }
       
     this.crudSvc.getTable(this.apiUrl(), this.apiEndpoint())
     .subscribe({
       next: res => {
-        this.tableSrc.set(res.data);
+        this.childTableData = res.data;
         this.isLoading.set(false);
       },
       error: err => {
@@ -172,11 +147,10 @@ export class NgCrudAioComponent implements OnInit, OnChanges {
   }
 
   public resetForm() {
-    Object.keys(this.form.controls).forEach(controlName => {
-      this.form.get(controlName)?.setValue('');
-      this.form.get(controlName)?.setErrors(null);
-    });
-    this.savingId.set('');
+    this.childFormData = null;
+    if (this.mode() === 'manual') {
+      this.cancelEditing.emit(null);
+    }
   }
 
   public edit(id: string) {
@@ -188,7 +162,7 @@ export class NgCrudAioComponent implements OnInit, OnChanges {
     this.crudSvc.getRecord(this.apiUrl(), this.apiEndpoint(), id)
     .subscribe({
       next: res => {
-        this.form.patchValue(res.data);
+        this.childFormData = res.data;
         this.savingId.set(id);
       },
       error: err => {
@@ -199,33 +173,29 @@ export class NgCrudAioComponent implements OnInit, OnChanges {
   }
 
   public remove(id: string) {
-    const dialogRef = this.deleteDialog.open(DeleteConfirmationDialog);
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === true) {
-        if (this.mode() === 'manual') {
-          this.removeRecord.emit(id);
-          return;
+    if (this.mode() === 'manual') {
+      this.removeRecord.emit(id);
+      return;
+    }
+    this.crudSvc.removeRecord(this.apiUrl(), this.apiEndpoint(), id)
+      .subscribe({
+        next: res => {
+          this.childTableData = res.data;
+          this.removingId.set('');
+          this.snack.open('Record removed!', 'Ok', { verticalPosition: 'top', duration: 3000 });
+        },
+        error: err => {
+          this.snack.open('Error removing record!', 'Ok', { verticalPosition: 'top', duration: 3000 });
+          console.error('NgCrudAioComponent: Error removing record from API', err);
+          this.removingId.set('');
         }
-        this.crudSvc.removeRecord(this.apiUrl(), this.apiEndpoint(), id)
-          .subscribe({
-            next: res => {
-              this.tableSrc.set(res.data);
-              this.removingId.set('');
-              this.snack.open('Record removed!', 'Ok', { verticalPosition: 'top', duration: 3000 });
-            },
-            error: err => {
-              this.snack.open('Error removing record!', 'Ok', { verticalPosition: 'top', duration: 3000 });
-              console.error('NgCrudAioComponent: Error removing record from API', err);
-              this.removingId.set('');
-            }
-          });
-      }
-    });
+      });
   }
 
-  public save() {
+  public save(form: any) {
+    this.childFormData = form;
     if (this.mode() === 'manual') {
-      this.saveRecord.emit(this.form.getRawValue());
+      this.saveRecord.emit(this.childFormData);
       return;
     }
 
@@ -237,7 +207,7 @@ export class NgCrudAioComponent implements OnInit, OnChanges {
   }
 
   private add() {    
-    this.crudSvc.addRecord(this.apiUrl(), this.apiEndpoint(), this.form.getRawValue())
+    this.crudSvc.addRecord(this.apiUrl(), this.apiEndpoint(), this.childFormData)
     .subscribe({
       next: res => {
         this.loadData(res.data);
@@ -253,11 +223,12 @@ export class NgCrudAioComponent implements OnInit, OnChanges {
   }
 
   private update() {
-    this.crudSvc.updateRecord(this.apiUrl(), this.apiEndpoint(), this.savingId(), this.form.getRawValue())
+    this.crudSvc.updateRecord(this.apiUrl(), this.apiEndpoint(), this.savingId(), this.childFormData)
     .subscribe({
       next: res => {
         this.loadData(res.data);
         this.isSaving.set(false);
+        this.savingId.set('');
         this.snack.open('Record updated!', 'Ok', { verticalPosition: 'top', duration: 3000 });
       },
       error: err => {

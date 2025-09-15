@@ -1,121 +1,32 @@
-<button matFab extended="elevated" [routerLink]="returnBtnUrl()" class="return-btn">
-    @if(returnBtnIcon()!='') {
-        <mat-icon fontIcon="{{ returnBtnIcon() }}"></mat-icon>
-    }
-    {{ returnBtnText() }}
-</button>
+@if (returnBtnUrl()!='') {
+    <button matFab extended="elevated" [routerLink]="returnBtnUrl()" class="return-btn">
+        @if(returnBtnIcon()!='') {
+            <mat-icon fontIcon="{{ returnBtnIcon() }}"></mat-icon>
+        }
+        {{ returnBtnText() }}
+    </button>
+}
 @if (isLoading()) {
     <mat-spinner></mat-spinner>
 }
 @else {
-    <mat-card>
-        <mat-card-header>
-            <mat-card-title>{{ title() }}</mat-card-title>
-            @if (subtitle()!='') {
-                <mat-card-subtitle>{{ subtitle() }}</mat-card-subtitle>
-            }
-        </mat-card-header>
-        <mat-card-content>
-            <form id="form" [formGroup]="form" (ngSubmit)="save()">
-                @for (field of fields(); track field.name) {
-                    @switch (field.type) {
-                        @case ('input'){
-                            <div class="form-field">
-                                <mat-form-field class="full-width-input">
-                                    <mat-label>{{ field.label }}</mat-label>
-                                    <input matInput [placeholder]="field.placeholder!" [formControlName]="field.name!"
-                                        [required]="field.required!">
-                                    <mat-error>
-                                        {{'please-provide-a-valid'}} {{ field.label }}
-                                    </mat-error>
-                                </mat-form-field>
-                            </div>
-                        }
-                        @case ('number') {
-                            <div class="form-field">
-                                <mat-form-field class="full-width-input">
-                                    <mat-label>{{ field.label }}</mat-label>
-                                    <input matInput [placeholder]="field.placeholder!" [formControlName]="field.name!"
-                                        [required]="field.required!" type="number" [min]="field.min!" [max]="field.max!">
-                                    <mat-error>
-                                        {{'please-provide-a-valid'}} {{ field.label }}
-                                    </mat-error>
-                                </mat-form-field>
-                            </div>
-                        }
-                        @case ('text') {
-                            <div class="form-field">
-                                <mat-form-field class="full-width-input">
-                                    <mat-label>{{ field.label }}</mat-label>
-                                    <textarea matInput [placeholder]="field.placeholder!" [formControlName]="field.name!" [required]="field.required!" [rows]="field.rows!"></textarea>
-                                    <mat-error>
-                                        {{'please-provide-a-valid'}} {{ field.label }}
-                                    </mat-error>
-                                </mat-form-field>
-                            </div>
-                        }
-                        @case ('select') {
-                            <div class="form-field">
-                                <mat-form-field class="full-width-input">
-                                    <mat-label>{{ field.label }}</mat-label>
-                                    <mat-select [formControlName]="field.name!" [required]="field.required!" [multiple]="field.multiple">
-                                        @for (option of field.options!; track option.value) {
-                                            <mat-option [value]="option.value">{{ option.label }}</mat-option>
-                                        }
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                        }
-                        @case ('checkbox') {
-                            <div class="form-field">
-                                <mat-checkbox [formControlName]="field.name!" [required]="field.required!">
-                                    {{ field.label }}
-                                </mat-checkbox>
-                            </div>
-                        }
-                    }
-                }
-            </form>
-        </mat-card-content>
-        <mat-card-actions>
-            <button matButton="tonal" type="button" (click)="resetForm()" color="warn">
-                <mat-icon fontIcon="clear"></mat-icon>
-                Clear
-            </button>
-            @if (isSaving()){
-                <mat-spinner [diameter]="40"></mat-spinner>
-            }
-            @else {
-                <button matButton="filled" type="submit" form="form" [disabled]="!form.valid">
-                    <mat-icon fontIcon="save"></mat-icon>
-                    {{ savingId() ? 'Save' : 'Add' }}
-                </button>
-            }        
-        </mat-card-actions>
-    </mat-card>
-    <mat-table [dataSource]="mode()=='auto' ? tableSrc() : tableData()" class="mat-elevation-z8">
-        @for(column of columns(); track column.db_name){
-            <ng-container matColumnDef="{{ column.db_name }}">
-                <mat-header-cell *matHeaderCellDef>{{ column.title }}</mat-header-cell>
-                <mat-cell *matCellDef="let row"> {{ row[column.db_name!] }} </mat-cell>
-            </ng-container>
-        }
-        <ng-container matColumnDef="actions">
-            <mat-header-cell *matHeaderCellDef>Remove</mat-header-cell>
-            <mat-cell *matCellDef="let row">
-                <button matMiniFab (click)="edit(row[idField()])" color="primary">
-                    <mat-icon fontIcon="edit"></mat-icon>
-                </button>
-                @if (removingId()!=row[idField()]) {
-                    <button matMiniFab (click)="remove(row[idField()])" color="warn">
-                        <mat-icon fontIcon="delete"></mat-icon>
-                    </button>
-                } @else {
-                    <mat-spinner [diameter]="24" color="warn"></mat-spinner>
-                }
-            </mat-cell>
-        </ng-container>
-        <mat-header-row *matHeaderRowDef="getDisplayedColumns()"></mat-header-row>
-        <mat-row *matRowDef="let row; columns: getDisplayedColumns();"></mat-row>
-    </mat-table>
+    <ng-crud-form             
+            mode="manual"
+            returnBtnIcon="clear"
+            returnBtnText="Cancel"
+            [title]="title()"
+            [subtitle]="subtitle()"            
+            [formData]="childFormData"
+            [fields]="fields()"
+            (saveRecord)="save($event)"
+            (cancelEditing)="resetForm()"
+        />
+        <ng-crud-table 
+                mode="manual"
+                [tableData]="childTableData"
+                [displayedColumns]="displayedColumns()"
+                [columns]="columns()"
+                (editRecord)="edit($event)"
+                (removeRecord)="remove($event)"
+            />
 }

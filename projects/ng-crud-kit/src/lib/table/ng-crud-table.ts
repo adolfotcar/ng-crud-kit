@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, effect, inject, input, output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -24,6 +25,7 @@ import { buildUrl } from '../utils/url.utils';
   imports: [
     CommonModule,
     RouterLink,
+    FormsModule,
     MatTableModule,
     MatProgressSpinnerModule,
     MatIconModule,
@@ -59,18 +61,18 @@ export class NgCrudTableComponent implements AfterViewInit {
   readonly tableData = input<any[]>([]);
 
   //link, text and icon to the top button
-  readonly returnBtnUrl = input('/');
+  readonly returnBtnUrl = input('');
   readonly returnBtnText = input('Return to Home');
   readonly returnBtnIcon = input('');
 
   //when clicking add button which URL it should follow
-  readonly addBtnUrl = input('/items');
+  readonly addBtnUrl = input('');
 
   //base url to the backend
-  readonly apiUrl = input('http://localhost:4200/api/');
+  readonly apiUrl = input('');
   
   //api endpoint
-  readonly apiEndpoint = input('items');
+  readonly apiEndpoint = input('');
 
   //label to be displayed on the Filter field
   readonly filterLabel = input('Filter');
@@ -82,7 +84,7 @@ export class NgCrudTableComponent implements AfterViewInit {
   readonly columns = input<NgCrudTableColumns[]>([]);    
 
   //when clicking in redirect it will navigate to this url plus the id of the record
-  readonly editUrl = input('/items');
+  readonly editUrl = input('');
 
   //indicates the name of the field to be treated as ID
   //it can be uuid, id, regno, etc
@@ -96,6 +98,9 @@ export class NgCrudTableComponent implements AfterViewInit {
 
   //used to show spinner while loading
   public isLoading = this.crudSvc.isLoading;
+
+  //used in the input filter
+  public filterValue: string = '';
 
   constructor(){
     // Use an effect to react to changes in the tableData signal
@@ -147,7 +152,6 @@ export class NgCrudTableComponent implements AfterViewInit {
       if (result === true) {       
         if (this.mode() === 'manual') {
           this.removeRecord.emit(id);
-          this.removingId.set('');
           return;
         }
         
@@ -168,10 +172,11 @@ export class NgCrudTableComponent implements AfterViewInit {
     });
   }
 
-  public applyFilter(event: Event){
-    const filterValue = (event.target as HTMLInputElement).value;
+  public applyFilter(event: KeyboardEvent){  
+    if (event.key==='Escape') {
+      this.filterValue = '';
+    }
 
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-  
+    this.dataSource.filter = this.filterValue.trim().toLowerCase();
   }
 }

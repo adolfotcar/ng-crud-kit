@@ -47,6 +47,8 @@ describe('NgCrudTableComponent', () => {
       httpTestingController = TestBed.inject(HttpTestingController);
       fixture = TestBed.createComponent(NgCrudTableComponent);
 
+      fixture.componentRef.setInput('apiUrl', apiUrl);
+      fixture.componentRef.setInput('apiEndpoint', endpoint);
       fixture.componentRef.setInput('displayedColumns', []);
       fixture.componentRef.setInput('editUrl', 'items');
 

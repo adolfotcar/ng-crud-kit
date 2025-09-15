@@ -70,6 +70,8 @@ describe('NgCrudFormComponent', () => {
       httpTestingController = TestBed.inject(HttpTestingController);
       
       fixture = TestBed.createComponent(NgCrudFormComponent);
+      fixture.componentRef.setInput('apiUrl', apiUrl);
+      fixture.componentRef.setInput('apiEndpoint', endpoint);
       fixture.componentRef.setInput('fields', [
         { name: 'name', type: 'input', label: 'Character', placeholder: 'Enter character name', required: true },
         { name: 'happy', type: 'select', label: 'Happy', required: false, options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }] },
@@ -171,6 +173,8 @@ describe('NgCrudFormComponent', () => {
       httpTestingController = TestBed.inject(HttpTestingController);
 
       fixture = TestBed.createComponent(NgCrudFormComponent);
+      fixture.componentRef.setInput('apiUrl', apiUrl);
+      fixture.componentRef.setInput('apiEndpoint', endpoint);
       fixture.componentRef.setInput('fields', [
         { name: 'name', type: 'input', label: 'Character', placeholder: 'Enter character name', required: true }
       ]);

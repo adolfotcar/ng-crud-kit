@@ -81,7 +81,7 @@ describe('NgCrudAioComponent', () => {
         expect(req.request.method).toBe('GET');
         req.flush(mockResponse);
 
-        expect(component.tableSrc()).toEqual(mockResponse.data);
+        expect(component.childTableData).toEqual(mockResponse.data);
         expect(component.isLoading()).toBeFalse();
       });
 
@@ -95,7 +95,7 @@ describe('NgCrudAioComponent', () => {
         req.flush(mockResponse);
 
         expect(req.request.method).toBe('GET');
-        expect(component.form.value).toEqual({ name: 'Edited Item' });
+        expect(component.childFormData).toEqual(mockResponse.data);
         expect(component.savingId()).toBe(editId);
       });
 
@@ -104,14 +104,14 @@ describe('NgCrudAioComponent', () => {
         spyOn(component['snack'], 'open');
 
         httpTestingController.expectOne(`${apiUrl}${endpoint}`).flush({ data: [] });
-        component.form.patchValue({ name: 'New Item' });
-        component.save(); 
+        component.childFormData = { name: 'New Item' };
+        component.save(component.childFormData); 
 
         const req = httpTestingController.expectOne(`${apiUrl}${endpoint}`);
         req.flush(mockResponse);
 
         expect(req.request.method).toBe('POST');
-        expect(component.tableSrc()).toEqual(mockResponse.data);
+        expect(component.childTableData).toEqual(mockResponse.data);
         expect(component.isSaving()).toBeFalse();
         expect(component.savingId()).toBe('');
         expect(component['snack'].open).toHaveBeenCalledWith('Record added!', 'Ok', { verticalPosition: 'top', duration: 3000 });
@@ -123,14 +123,14 @@ describe('NgCrudAioComponent', () => {
         spyOn(component['snack'], 'open');
 
         component.savingId.set(updateId);
-        component.form.setValue({ name: 'Updated Item' });
-        component.save(); 
+        component.childFormData = { name: 'Updated Item' };
+        component.save(component.childFormData); 
 
         const req = httpTestingController.expectOne(`${apiUrl}${endpoint}/${updateId}`);
         req.flush(mockResponse);
 
         expect(req.request.method).toBe('PUT');
-        expect(component.tableSrc()).toEqual(mockResponse.data);
+        expect(component.childTableData).toEqual(mockResponse.data);
         expect(component.isSaving()).toBeFalse();
         expect(component.savingId()).toBe('');
         expect(component['snack'].open).toHaveBeenCalledWith('Record updated!', 'Ok', { verticalPosition: 'top', duration: 3000 });
@@ -140,11 +140,6 @@ describe('NgCrudAioComponent', () => {
         const removeId = '1';
         const mockResponse = { data: [] };
         spyOn(component['snack'], 'open');
-        spyOn(component['deleteDialog'], 'open').and.returnValue({
-          afterClosed: () => ({
-            subscribe: (cb: any) => cb(true) // simulate confirmation
-          })
-        } as any);
 
         component.remove(removeId);
 
@@ -152,7 +147,7 @@ describe('NgCrudAioComponent', () => {
         req.flush(mockResponse);
 
         expect(req.request.method).toBe('DELETE');
-        expect(component.tableSrc()).toEqual(mockResponse.data);
+        expect(component.childTableData).toEqual(mockResponse.data);
         expect(component.removingId()).toBe('');
         expect(component['snack'].open).toHaveBeenCalledWith('Record removed!', 'Ok', { verticalPosition: 'top', duration: 3000 })
       });
@@ -174,8 +169,8 @@ describe('NgCrudAioComponent', () => {
         spyOn(component['snack'], 'open');
 
         httpTestingController.expectOne(`${apiUrl}${endpoint}`).flush({ data: [] });
-        component.form.patchValue({ name: 'Failed Add' });
-        component.save();
+        component.childFormData = { name: 'Failed Add' };
+        component.save(component.childFormData);
 
         const req = httpTestingController.expectOne(`${apiUrl}${endpoint}`);
         req.flush('Server Error', { status: 500, statusText: 'Server Error' });
@@ -190,8 +185,8 @@ describe('NgCrudAioComponent', () => {
         spyOn(component['snack'], 'open');
 
         component.savingId.set(updateId);
-        component.form.setValue({ name: 'Failed Update' });
-        component.save();
+        component.childFormData = { name: 'Failed Update' };
+        component.save(component.childFormData);
 
         const req = httpTestingController.expectOne(`${apiUrl}${endpoint}/${updateId}`);
         req.flush('Server Error', { status: 500, statusText: 'Server Error' });
@@ -204,11 +199,6 @@ describe('NgCrudAioComponent', () => {
       it('should show snackbar on remove record API failure', () => {
         const removeId = '1';
         spyOn(component['snack'], 'open');
-        spyOn(component['deleteDialog'], 'open').and.returnValue({
-          afterClosed: () => ({
-            subscribe: (cb: any) => cb(true)
-          })
-        } as any);
 
         component.remove(removeId);
 
@@ -276,8 +266,8 @@ describe('NgCrudAioComponent', () => {
     it('should emit saveRecord when saving a new record', () => {
       spyOn(component.saveRecord, 'emit');
 
-      component.form.patchValue({ name: 'Manual Add', happy: 'yes', terms: true });
-      component.save();
+      component.childFormData = { name: 'Manual Add', happy: 'yes', terms: true };
+      component.save(component.childFormData);
 
       expect(component.saveRecord.emit).toHaveBeenCalledWith({ name: 'Manual Add', happy: 'yes', terms: true });
     });
@@ -287,8 +277,8 @@ describe('NgCrudAioComponent', () => {
       spyOn(component.saveRecord, 'emit');
 
       component.savingId.set(updateId);
-      component.form.patchValue({ name: 'Manual Update', happy: 'yes', terms: true });
-      component.save();
+      component.childFormData = { name: 'Manual Update', happy: 'yes', terms: true };
+      component.save(component.childFormData);
 
       expect(component.saveRecord.emit).toHaveBeenCalledWith({ name: 'Manual Update', happy: 'yes', terms: true });
     });
@@ -296,11 +286,6 @@ describe('NgCrudAioComponent', () => {
     it('should emit removeRecord when removing a record', () => {
       const removeId = '99';
       spyOn(component.removeRecord, 'emit');      
-      spyOn(component['deleteDialog'], 'open').and.returnValue({
-        afterClosed: () => ({
-          subscribe: (cb: any) => cb(true)
-        })
-      } as any);
 
       component.remove(removeId);
 

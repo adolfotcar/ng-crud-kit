@@ -6,7 +6,7 @@
       }
   </mat-card-header>
   <mat-card-content>
-    <form id="form" [formGroup]="form" (ngSubmit)="save()">
+    <form id="form" [formGroup]="form">
         @for (field of fields(); track field.name) {
             @switch (field.type) {
                 @case ('input'){
@@ -68,7 +68,7 @@
     </form>
   </mat-card-content>
   <mat-card-actions>
-    <a matButton="tonal" type="button" [routerLink]="returnBtnUrl()">
+    <a matButton="tonal" type="button" (click)="cancel()">
       @if (returnBtnIcon()!='') {
         <mat-icon fontIcon="{{ returnBtnIcon() }}"></mat-icon>
       }
@@ -78,7 +78,7 @@
       <mat-spinner [diameter]="40"></mat-spinner>
     }
     @else {
-      <button matButton="filled" type="submit" form="form" [disabled]="form.invalid">
+      <button matButton="filled" type="button" form="form" [disabled]="form.invalid" (click)="save()">
         <mat-icon fontIcon="save"></mat-icon>
         {{ 'Save' }}
       </button>

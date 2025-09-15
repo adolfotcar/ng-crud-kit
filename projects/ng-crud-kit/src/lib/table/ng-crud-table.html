@@ -1,20 +1,29 @@
-<button matButton="tonal" [routerLink]="returnBtnUrl()" class="return-btn">
-    @if(returnBtnIcon()!='') {
-        <mat-icon fontIcon="{{ returnBtnIcon() }}"></mat-icon>
-    }
-    {{ returnBtnText() }}
-</button>
-<button matButton="filled" [routerLink]="addBtnUrl()">
-    <mat-icon>add</mat-icon>
-    Add
-</button>
+@if (returnBtnUrl()!=''){
+    <button matButton="tonal" [routerLink]="returnBtnUrl()" class="return-btn">
+        @if(returnBtnIcon()!='') {
+            <mat-icon fontIcon="{{ returnBtnIcon() }}"></mat-icon>
+        }
+        {{ returnBtnText() }}
+    </button>
+}
+@if (addBtnUrl()!=''){
+    <button matButton="filled" [routerLink]="addBtnUrl()">
+        <mat-icon>add</mat-icon>
+        Add
+    </button>
+}
 @if (this.isLoading()) {
     <mat-spinner></mat-spinner>
 }
 <div class="table-container">
     <mat-form-field class="full-width-input">
         <mat-label>{{ filterLabel() }}</mat-label>
-        <input matInput (keyup)="applyFilter($event)" placeholder="">
+        <input matInput (keyup)="applyFilter($event)" [(ngModel)]="filterValue">
+        @if (filterValue!='') {
+            <button matSuffix matIconButton aria-label="Clear" (click)="filterValue=''">
+                <mat-icon>close</mat-icon>
+            </button>
+        }
     </mat-form-field>
     <mat-table [dataSource]="dataSource" matSort>        
         @for(column of columns(); track column.db_name){

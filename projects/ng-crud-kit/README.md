@@ -52,12 +52,11 @@ import { CrudTableColumns } from 'ng-crud-kit/models';
   selector: 'app-product-list',
   template: `
     <ng-crud-table
-      [title]="'Products'"
-      [subtitle]="'Manage your product inventory'"
-      [urlEndpoint]="'products'"
+      apiUrl='http://localhost:4200/api/'
+      urlEndpoint="products"
       [displayedColumns]="displayedCols"
       [columns]="tableColumns"
-      [editUrl]="'products'">
+      editUrl="/products">
     </ng-crud-table>
   `,
   imports: [NgCrudTableComponent]
@@ -78,16 +77,16 @@ The form is built inside a [Material Card](https://material.angular.dev/componen
 |--------|----|-------|-----------|
 |mode|'auto'\|'manual'|'auto'|Let's you decide wether you want the component to automatically handle the API calls or if you just want to hear the emitters and handle them yourself.|
 |tableData|any[]|[]|**Manual mode only**: the data to display in the table.|
-|returnBtnUrl|string|'/'|The URL for the top-left return button.|
+|returnBtnUrl|string|''|The URL for the top-left return button. When empty the button is hidden.|
 |returnBtnText|string|'Return to Home'|The text for the return button.|
 |returnBtnIcon|string|''|An Angular Material icon name for the return button. If no icon needed, leave blank.|
-|addBtnUrl|string|'/items'|The url to navigate when the Add button is clicked, this path is relative to the current route.|
-|apiUrl|string|'http://localhost:4200/api/'|**Auto mode only**: the base URL for your backend API.|
-|apiEndpoint|string|'items'|**Auto mode only**: the specific endpoint for your resource (e.g., 'users', 'products').|
+|addBtnUrl|string|''|The url to navigate when the Add button is clicked, this path is relative to the current route. When empty the button is hidden.|
+|apiUrl|string|''|**Auto mode only**: the base URL for your backend API.|
+|apiEndpoint|string|''|**Auto mode only**: the specific endpoint for your resource (e.g., 'users', 'products').|
 |filterLabel|string|'Filter'|The label to be displayed at the filter input box|
 |displayedColumns|string[]|[]|An array of column names that will be displayed in the table.|
 |columns|CrudTableColumns[]|[]|An array defining the table column headers and their behavior. See CrudTableColumns models below.|
-|editUrl|string|'items'|The URL which will redirect when the edit button is clicked. The ID will be added to this URL|
+|editUrl|string|''|**Auto mode only**: The URL which will redirect when the edit button is clicked. The ID will be added to this URL|
 |idField|string|'id'|The name of the field to be treated as the ID. Used to generate the edit URL and make the remove call|
 
 #### Outputs
@@ -139,12 +138,12 @@ The form is built inside a [Material Card](https://material.angular.dev/componen
 |mode|'auto'\|'manual'|'auto'|Let's you decide wether you want the component to automatically handle the API calls or if you just want to hear the emitters and handle them yourself.|
 |title|string|'CRUD'|The main title of the page or form. The form is presented in a Material Card, and this is the title of the card|
 |subtitle|string|''|A subtitle to display below the main title. If no subtitle needed, leave blank.|
-|returnBtnUrl|string|'/'|The URL for the top-left return button.|
+|returnBtnUrl|string|''|The URL for the top-left return button. When empty, an event cancelEditing() will be emitted when the button is clicked.|
 |returnBtnText|string|'Return to Home'|The text for the return button.|
 |returnBtnIcon|string|''|An Angular Material icon name for the return button. If no icon needed, leave blank.|
-|apiUrl|string|'http://localhost:4200/api/'|**Auto mode only**: the base URL for your backend API.|
-|urlEapiEndpointndpoint|string|'items'|**Auto mode only**: the specific endpoint for your resource (e.g., 'users', 'products').|
-|redirectOnSaveUrl|string|'items'|After saving a new record the URL which it'll be redirected to. For example if you are in ```/item``` creating a new record, after saving and receiving the ID 5 then it redirects to ```/item/5```.|
+|apiUrl|string|''|**Auto mode only**: the base URL for your backend API.|
+|urlEapiEndpointndpoint|string|''|**Auto mode only**: the specific endpoint for your resource (e.g., 'users', 'products').|
+|redirectOnSaveUrl|string|''|After saving a new record the URL which it'll be redirected to. For example if you are in ```/item``` creating a new record, after saving and receiving the ID 5 then it redirects to ```/item/5```.|
 |redirectOnSaveIdField|string|'id'|The field returned by the REST API that contains an identifier. This could be id, uuid, regno, etc|
 |fields|CrudFormItem[]|[]|An array defining the form fields and their properties. See CrudFormItem model below.|
 |formData|[]|null|**Manual mode only** values to be passed to form, for example when in editing mode.|
@@ -176,8 +175,8 @@ import { CrudFormItem, CrudTableColumns } from 'ng-crud-aio/models';
   selector: 'app-root',
   template: `
     <ng-crud-aio
-      [title]="'User Management'"
-      [urlEndpoint]="'users'"
+      title="User Management"
+      urlEndpoint="users"
       [fields]="formFields"
       [displayedColumns]="displayedCols"
       [columns]="tableColumns">
@@ -212,15 +211,14 @@ The form is built inside a [Material Card](https://material.angular.dev/componen
 |formData|any[]|[]|**Manual mode only**: the data to be displayed in the form.|
 |title|string|'CRUD'|The main title of the page or form. The form is presented in a Material Card, and this is the title of the card|
 |subtitle|string|''|A subtitle to display below the main title. If no subtitle needed, leave blank.|
-|returnBtnUrl|string|'/'|The URL for the top-left return button.|
+|returnBtnUrl|string|''|The URL for the top-left return button. When empty the button will be hidden.|
 |returnBtnText|string|'Return to Home'|The text for the return button.|
 |returnBtnIcon|string|''|An Angular Material icon name for the return button. If no icon needed, leave blank.|
-|apiUrl|string|'http://localhost:4200/api/'|**Auto mode only**: the base URL for your backend API.|
-|apiEndpoint|string|'items'|**Auto mode only**: the specific endpoint for your resource (e.g., 'users', 'products').|
+|apiUrl|string|''|**Auto mode only**: the base URL for your backend API.|
+|apiEndpoint|string|''|**Auto mode only**: the specific endpoint for your resource (e.g., 'users', 'products').|
 |fields|CrudFormItem[]|[]|An array defining the form fields and their properties. See CrudFormItem model below.|
 |displayedColumns|string[]|[]|An array of column names that will be displayed in the table.|
 |columns|CrudTableColumns[]|[]|An array defining the table column headers and their behavior. See CrudTableColumns models below.|
-|idField|string|'id'|**Auto mode only**: the name of the ID field present in the table. Used, for example, when removing a record which field specifies which record to be removed|
 
 #### Outputs
 These events are only emitted when ```mode``` is set to ```'manual'```.
@@ -230,6 +228,7 @@ These events are only emitted when ```mode``` is set to ```'manual'```.
 |editRecord|EventEmitter<any>|Emits when an existing record is requested for editing. The emitted value is the record's ID.|
 |saveRecord|EventEmitter<any>|Emits when a new or existing record is saved. The emitted value is the form data.|
 |removeRecord|EventEmitter<any>|Emits when a record is requested for removal. The emitted value is the record's ID.|
+|cancelEditing|EventEmitter<any>|Emits when the cancel editing button is clicked so the consumer can clear the editing ID, etc|
 
 ## Sending Bearer Token
 In most cases you'd like to submit a Bearer token or some other authentication via your headers.  

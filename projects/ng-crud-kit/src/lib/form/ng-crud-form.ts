@@ -1,7 +1,7 @@
-import { Component, input, output, inject, OnInit, OnChanges } from '@angular/core';
+import { Component, input, output, inject, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,7 +13,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox'
 
-
 import { NgCrudFormItem } from '../models/crud-form-item.model';
 import { CrudRequestService } from '../services/ng-crud-request.service';
 
@@ -23,7 +22,6 @@ import { CrudRequestService } from '../services/ng-crud-request.service';
   imports: [
     ReactiveFormsModule,
     CommonModule,
-    RouterLink,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
@@ -36,7 +34,7 @@ import { CrudRequestService } from '../services/ng-crud-request.service';
   templateUrl: './ng-crud-form.html',
   styleUrl: './ng-crud-form.scss'
 })
-export class NgCrudFormComponent implements OnInit, OnChanges {
+export class NgCrudFormComponent implements OnInit {
   private crudSvc = inject(CrudRequestService);
   private formBuilder = inject(FormBuilder);
   private snack = inject(MatSnackBar);
@@ -44,6 +42,7 @@ export class NgCrudFormComponent implements OnInit, OnChanges {
   private route = inject(ActivatedRoute)
 
   readonly saveRecord = output<any>();
+  readonly cancelEditing = output<any>();
 
   //auto handles API calls internally and will require full API parameters to be passed
   //manual will emit events for the parent component to handle API calls and the table data should come from the parent
@@ -54,20 +53,20 @@ export class NgCrudFormComponent implements OnInit, OnChanges {
   readonly title = input('CRUD');
   readonly subtitle = input('');
 
-  //link and text to the top button
-  readonly returnBtnUrl = input('/');
+  //link and text to the return button
+  readonly returnBtnUrl = input('');
   readonly returnBtnText = input('Return to Home');
   readonly returnBtnIcon = input('clear');
 
   //base url to the backend
-  readonly apiUrl = input('http://localhost:4200/api/');
+  readonly apiUrl = input('');
   
   //api endpoint
-  readonly apiEndpoint = input('items');
+  readonly apiEndpoint = input('');
 
   //redirect on save base URL
   //if after saving the API responds with ID 99 then it should redirect to items/99
-  readonly redirectOnSaveUrl = input('/items');
+  readonly redirectOnSaveUrl = input('');
   readonly redirectOnSaveIdField = input('id');
   
   //form fields to be constructed
@@ -87,41 +86,45 @@ export class NgCrudFormComponent implements OnInit, OnChanges {
 
   public form = new UntypedFormGroup({});
 
-  ngOnInit(): void {    
-    if ((this.recordId === '')||(this.mode() === 'manual')) {
-      this.isLoading.set(false);
-      return;
-    }      
+  constructor(){
+    effect(()=>{
+      //reseting the form when changes coming from parent
+      this.form = new UntypedFormGroup({});
+      let formGroup: any = {};
+      this.fields().forEach((item: any) => {
+        let val = item.defaultValue ? item.defaultValue : '';
+        let validators = item.required ? [Validators.required] : [];
+        formGroup[item.name] = [val, validators];
+      });
+      this.form = this.formBuilder.group(formGroup);
 
-    this.crudSvc.getRecord(this.apiUrl(), this.apiEndpoint(), this.recordId)
-    .subscribe({
-      next: res => {
-        this.form.patchValue(res.data);
+      if ((this.recordId === '')||(this.mode() === 'manual')) {
+        if (this.formData()) {
+          this.form.patchValue(this.formData());
+        } else {
+          this.form.reset();
+        }
         this.isLoading.set(false);
-      },
-      error: err => {
-        this.snack.open('Error loading data!', 'Ok', { verticalPosition: 'top', duration: 3000 });
-        this.isLoading.set(false);
-        console.error('NgCrudAioComponent: Error loading data from API', err);
       }
     });
-  
   }
 
-  ngOnChanges(): void {
-    // Re-build form when inputs change
-    this.form = new UntypedFormGroup({});
-    let formGroup: any = {};
-    this.fields().forEach((item: any) => {
-      let val = item.defaultValue ? item.defaultValue : '';
-      let validators = item.required ? [Validators.required] : [];
-      formGroup[item.name] = [val, validators];
-    });
-    this.form = this.formBuilder.group(formGroup);
-
-    if (this.mode() === 'manual') {
-      this.form.patchValue(this.formData());
+  ngOnInit(): void {
+    if (this.mode() === 'auto' && this.recordId !== '') {
+      this.crudSvc.getRecord(this.apiUrl(), this.apiEndpoint(), this.recordId)
+      .subscribe({
+        next: res => {
+          this.form.patchValue(res.data);
+          this.isLoading.set(false);
+        },
+        error: err => {
+          this.snack.open('Error loading data!', 'Ok', { verticalPosition: 'top', duration: 3000 });
+          this.isLoading.set(false);
+          console.error('NgCrudAioComponent: Error loading data from API', err);
+        }
+      });
     }
+  
   }
 
   public save() {
@@ -170,6 +173,17 @@ export class NgCrudFormComponent implements OnInit, OnChanges {
         this.isSaving.set(false);
       }
     });
+  }
+
+  cancel(){
+    if (this.returnBtnUrl() !== '') {
+      this.router.navigate([this.returnBtnUrl()]);
+      return;    
+    }      
+
+    //emits cancelling with form value, just in case it's relevant to the parent
+    this.cancelEditing.emit(this.form.getRawValue());
+  
   }
 
 }
