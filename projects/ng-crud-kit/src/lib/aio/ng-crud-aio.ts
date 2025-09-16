@@ -142,10 +142,6 @@ export class NgCrudAioComponent implements OnInit {
     
   }
 
-  public getDisplayedColumns(): string[] {
-    return [...this.displayedColumns(), 'actions'];
-  }
-
   public resetForm() {
     this.childFormData = null;
     if (this.mode() === 'manual') {

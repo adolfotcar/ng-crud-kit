@@ -1,6 +1,6 @@
 import { Component, input, output, inject, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { MatCardModule } from '@angular/material/card';
@@ -84,17 +84,16 @@ export class NgCrudFormComponent implements OnInit {
   //when editing a record, this will extract it's ID from the URL
   private recordId = this.route.snapshot.paramMap.get('id') || '';
 
-  public form = new UntypedFormGroup({});
+  public form = new FormGroup({});
 
   constructor(){
     effect(()=>{
       //reseting the form when changes coming from parent
-      this.form = new UntypedFormGroup({});
-      let formGroup: any = {};
+      const formGroup: {[key: string]: FormControl } = {};
       this.fields().forEach((item: any) => {
         let val = item.defaultValue ? item.defaultValue : '';
         let validators = item.required ? [Validators.required] : [];
-        formGroup[item.name] = [val, validators];
+        formGroup[item.name] = this.formBuilder.control(val, validators);
       });
       this.form = this.formBuilder.group(formGroup);
 

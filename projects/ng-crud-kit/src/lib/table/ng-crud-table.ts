@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, effect, inject, input, output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, computed, effect, inject, input, output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -102,6 +102,8 @@ export class NgCrudTableComponent implements AfterViewInit {
   //used in the input filter
   public filterValue: string = '';
 
+  public displayedColumnsWithActions = computed(() => [...this.displayedColumns(), 'actions']);
+
   constructor(){
     // Use an effect to react to changes in the tableData signal
     effect(() => {
@@ -133,10 +135,6 @@ export class NgCrudTableComponent implements AfterViewInit {
     
   }
 
-  public getDisplayedColumns(): string[] {
-    return [...this.displayedColumns(), 'actions'];
-  }
-
   public edit(id: string){
     if (this.mode() === 'manual') {
       this.editRecord.emit(id);
@@ -149,12 +147,14 @@ export class NgCrudTableComponent implements AfterViewInit {
   public remove(id: string){
     const dialogRef = this.deleteDialog.open(DeleteConfirmationDialog);
     dialogRef.afterClosed().subscribe(result => {
-      if (result === true) {       
+      if (result === true) {
+        //keep this inside the dialog so the consumer
+        //doesn't need to worry about confirmation
         if (this.mode() === 'manual') {
           this.removeRecord.emit(id);
           return;
         }
-        
+
         this.crudSvc.removeRecord(this.apiUrl(), this.apiEndpoint(), id)
         .subscribe({
           next: res => {

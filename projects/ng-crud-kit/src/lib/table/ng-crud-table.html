@@ -47,8 +47,8 @@
                 }
             </mat-cell>
         </ng-container>
-        <mat-header-row *matHeaderRowDef="getDisplayedColumns()"></mat-header-row>
-        <mat-row *matRowDef="let row; columns: getDisplayedColumns();"></mat-row>
+        <mat-header-row *matHeaderRowDef="displayedColumnsWithActions()"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumnsWithActions();"></mat-row>
     </mat-table>
     <mat-paginator [pageSizeOptions]="[10, 25, 50, 100, 500]" showFirstLastButtons></mat-paginator>
 </div>

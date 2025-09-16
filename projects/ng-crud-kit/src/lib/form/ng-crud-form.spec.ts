@@ -105,7 +105,7 @@ describe('NgCrudFormComponent', () => {
       });
 
       it('should load form data on init', () => { 
-        expect(component.form.get('name')?.value).toEqual('Test Item');
+        expect(component.form.get('name')!.value).toEqual('Test Item');
         expect(component.isLoading()).toBeFalse();
       });
 
@@ -120,9 +120,9 @@ describe('NgCrudFormComponent', () => {
         req.flush(mockResponse);
 
         expect(req.request.method).toBe('PUT');
-        expect(component.form.get('name')?.value).toEqual(mockResponse.data.name);
+        expect(component.form.get('name')!.value).toEqual(mockResponse.data.name);
         expect(component.isSaving()).toBeFalse();
-        expect(component['snack'].open).toHaveBeenCalledWith('Record updated!', 'Ok', jasmine.any(Object));
+        expect(component['snack'].open).toHaveBeenCalledWith('Record updated!', 'Ok', { verticalPosition: 'top', duration: 3000 });
       });
     });
 
@@ -141,7 +141,7 @@ describe('NgCrudFormComponent', () => {
 
         expect(req.request.method).toBe('GET');
         expect(component.isLoading()).toBeFalse();
-        expect(component['snack'].open).toHaveBeenCalledWith('Error loading data!', 'Ok', jasmine.any(Object));
+        expect(component['snack'].open).toHaveBeenCalledWith('Error loading data!', 'Ok', { verticalPosition: 'top', duration: 3000 });
       });
 
       it('should show a snackbar on failed save', () => {
@@ -159,7 +159,7 @@ describe('NgCrudFormComponent', () => {
 
         expect(req.request.method).toBe('PUT');
         expect(component.isSaving()).toBeFalse();
-        expect(component['snack'].open).toHaveBeenCalledWith('Error updating record!', 'Ok', jasmine.any(Object));
+        expect(component['snack'].open).toHaveBeenCalledWith('Error updating record!', 'Ok', { verticalPosition: 'top', duration: 3000 });
       });
     });
 
@@ -210,7 +210,7 @@ describe('NgCrudFormComponent', () => {
         expect(req.request.method).toBe('POST');
         expect(navigateSpy).toHaveBeenCalledWith([`${component.redirectOnSaveUrl()}/${mockResponse.data.id}`]);
         expect(component.isSaving()).toBeFalse();
-        expect(component['snack'].open).toHaveBeenCalledWith('Record added!', 'Ok', jasmine.any(Object));
+        expect(component['snack'].open).toHaveBeenCalledWith('Record added!', 'Ok', { verticalPosition: 'top', duration: 3000 });
       });
     });
 
